@@ -89,4 +89,35 @@ public class TaskRepositoryTests
         expectedTask = expectedTask with {Status = assign.Status};
         task.Should().BeEquivalentTo(expectedTask);
     }
+
+    [Fact]
+    public async Task GetSubTasksInStatus_Success()
+    {
+        // Arrange
+        const int count = 10;
+        
+        var tasks = TaskEntityV1Faker.Generate(count);
+        
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = tasks[i].WithParentId(i + 2);
+        }
+        
+        var taskIds = await _repository.Add(tasks, default);
+        var parentTaskId = taskIds.Last();
+
+        var queries = GetSubTasksInStatusModelFaker.Generate();
+        var query = queries.First().WithParentTaskId(parentTaskId);
+        
+        // Act
+        var results = await _repository.GetSubTasksInStatus(query, default);
+        
+        // Assert
+        results.Should().NotBeNull();
+        foreach (var result in results)
+        {
+            result.ParentTaskIds.Should().Contain(parentTaskId);
+            query.Statuses.Should().Contain(result.Status);
+        }
+    }
 }

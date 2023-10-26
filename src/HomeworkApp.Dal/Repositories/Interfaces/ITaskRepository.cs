@@ -10,4 +10,6 @@ public interface ITaskRepository
     Task<TaskEntityV1[]> Get(TaskGetModel query, CancellationToken token);
 
     Task Assign(AssignTaskModel model, CancellationToken token);
+    
+    Task<SubTaskModel[]> GetSubTasksInStatus(GetSubTasksInStatusModel query, CancellationToken token);
 }

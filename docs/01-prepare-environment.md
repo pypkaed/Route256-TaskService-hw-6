@@ -61,7 +61,7 @@ sudo apt-get install redis
 
 ### Запускаем контейнер
 ```shell
-docker-compose up -d
+sudo docker-compose up -d
 ```
 ### Проверка подключения к PostgreSql
 В ответе должен показать **localhost:15432 - accepting connections**

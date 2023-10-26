@@ -38,4 +38,9 @@ public static class TaskEntityV1Faker
         this TaskEntityV1 src, 
         long assignedToUserId)
         => src with { AssignedToUserId = assignedToUserId };
+    
+    public static TaskEntityV1 WithParentId(
+        this TaskEntityV1 src, 
+        long parentTaskId)
+        => src with { ParentTaskId = parentTaskId };
 }
