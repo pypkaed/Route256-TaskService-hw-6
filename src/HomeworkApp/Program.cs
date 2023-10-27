@@ -1,6 +1,7 @@
 using FluentValidation.AspNetCore;
 using HomeworkApp.Bll.Extensions;
 using HomeworkApp.Dal.Extensions;
+using HomeworkApp.Interceptors;
 using HomeworkApp.Services;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -14,7 +15,9 @@ builder.WebHost.ConfigureKestrel(options =>
 var services = builder.Services;
 
 //add grpc
-services.AddGrpc();
+services.AddGrpc(options => {
+    options.Interceptors.Add<UserRateLimitInterceptor>();
+    });
 
 //add validation
 services.AddFluentValidation(conf =>

@@ -66,13 +66,15 @@ public class UserRateLimitRepository : RedisRepository, IUserRateLimitRepository
         return result;
     }
 
-    public async Task Decrement(string userIp, CancellationToken token)
+    public async Task<long> Decrement(string userIp, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
 
         var key = GetKey(userIp);
-        await connection.HashDecrementAsync(key, "current_limit", 1);
+        var currentLimit = await connection.HashDecrementAsync(key, "current_limit");
+
+        return currentLimit;
     }
 
     public async Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken token)

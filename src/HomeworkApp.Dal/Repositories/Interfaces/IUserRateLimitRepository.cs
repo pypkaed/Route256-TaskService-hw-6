@@ -8,7 +8,7 @@ public interface IUserRateLimitRepository
     
     Task<UserRateLimitModel?> Get(string userIp, CancellationToken token);
     
-    Task Decrement(string userIp, CancellationToken token);
+    Task<long> Decrement(string userIp, CancellationToken token);
     
     Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken token);
     
