@@ -203,6 +203,8 @@ public class TaskService : ITaskService
                     At = taskComment.At,
                     IsDeleted = false,
                 })
+            .OrderByDescending(tc => tc.At)
+            .Take(5)
             .ToArray();
 
         var taskCommentsJson = JsonSerializer.Serialize(results);
