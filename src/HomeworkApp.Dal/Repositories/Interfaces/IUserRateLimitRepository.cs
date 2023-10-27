@@ -1,6 +1,16 @@
+using HomeworkApp.Dal.Models;
+
 namespace HomeworkApp.Dal.Repositories.Interfaces;
 
 public interface IUserRateLimitRepository
 {
-    Task<long> IncRequestPerMinute(long userId, CancellationToken token);
+    Task Add(UserRateLimitModel model, CancellationToken token);
+    
+    Task<UserRateLimitModel?> Get(string userIp, CancellationToken token);
+    
+    Task Decrement(string userIp, CancellationToken token);
+    
+    Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken token);
+    
+    Task Delete(string userIp, CancellationToken token);
 }

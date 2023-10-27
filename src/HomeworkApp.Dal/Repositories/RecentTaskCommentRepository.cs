@@ -39,38 +39,24 @@ public class RecentTaskCommentRepository : RedisRepository, IRecentTaskCommentRe
         var connection = await GetConnection();
 
         var key = GetKey(taskId);
-        var entries = await connection.HashGetAllAsync(key);
+        var fields = await connection.HashGetAllAsync(key);
 
-        if (!entries.Any())
+        if (!fields.Any())
         {
             return null;
         }
 
         var results = new List<RecentTaskCommentModel>();
-        // var result = new RecentTaskCommentModel();
-        foreach (var entry in entries)
+        foreach (var field in fields)
         {
-            if (!entry.Value.HasValue)
+            if (!field.Value.HasValue)
             {
                 continue;
             }
 
-            var result = JsonSerializer.Deserialize<RecentTaskCommentModel>(entry.Value.ToString());
+            var result = JsonSerializer.Deserialize<RecentTaskCommentModel>(field.Value.ToString());
 
             results.Add(result);
-
-            // field.Value.TryParse(out long longValue);
-            // var strValue = field.Value.ToString();
-            //
-            // result = field.Name.ToString() switch
-            // {
-            //     // "task_id" => result with {TaskId = longValue},
-            //     // "title" => result with {Title = strValue},
-            //     // "assigned_to_user_id" => result with {AssignedToUserId = longValue},
-            //     // "assigned_to_email" => result with {AssignedToEmail = strValue},
-            //     // "assigned_at" => result with{AssignedAt = DateTimeOffset.FromUnixTimeMilliseconds(longValue)},
-            //     _ => result
-            // };
         }
 
         return results.ToArray();
