@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITaskLogRepository, TaskLogRepository>();
         services.AddScoped<ITaskCommentRepository, TaskCommentRepository>();
+        services.AddScoped<IRecentTaskCommentRepository, RecentTaskCommentRepository>();
     }
 
     public static IServiceCollection AddDalInfrastructure(

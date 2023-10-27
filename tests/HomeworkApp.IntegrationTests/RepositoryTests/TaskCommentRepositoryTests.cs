@@ -8,11 +8,11 @@ using Xunit;
 namespace HomeworkApp.IntegrationTests.RepositoryTests;
 
 [Collection(nameof(TestFixture))]
-public class TaskCommentRepositoryTest
+public class TaskCommentRepositoryTests
 {
     private readonly ITaskCommentRepository _repository;
 
-    public TaskCommentRepositoryTest(TestFixture fixture)
+    public TaskCommentRepositoryTests(TestFixture fixture)
     {
         _repository = fixture.TaskCommentRepository;
     }

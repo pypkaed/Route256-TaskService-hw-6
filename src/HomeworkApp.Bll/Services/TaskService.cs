@@ -172,6 +172,11 @@ public class TaskService : ITaskService
         transaction.Complete();
     }
 
+    public Task<TaskMessage[]> GetComments(long taskId, CancellationToken token)
+    {
+        throw new NotImplementedException();
+    }
+
     private TransactionScope CreateTransactionScope(
         IsolationLevel level = IsolationLevel.ReadCommitted)
     {
