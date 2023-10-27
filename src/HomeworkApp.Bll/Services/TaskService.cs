@@ -16,17 +16,20 @@ public class TaskService : ITaskService
     private readonly ITaskRepository _taskRepository;
     private readonly ITaskLogRepository _taskLogRepository;
     private readonly ITakenTaskRepository _takenTaskRepository;
+    private readonly ITaskCommentRepository _taskCommentRepository;
     private readonly IDistributedCache _distributedCache;
 
     public TaskService(
         ITaskRepository taskRepository,
         ITaskLogRepository taskLogRepository,
         ITakenTaskRepository takenTaskRepository, 
+        ITaskCommentRepository taskCommentRepository,
         IDistributedCache distributedCache)
     {
         _taskRepository = taskRepository;
         _taskLogRepository = taskLogRepository;
         _takenTaskRepository = takenTaskRepository;
+        _taskCommentRepository = taskCommentRepository;
         _distributedCache = distributedCache;
     }
     
@@ -172,9 +175,47 @@ public class TaskService : ITaskService
         transaction.Complete();
     }
 
-    public Task<TaskMessage[]> GetComments(long taskId, CancellationToken token)
+    public async Task<TaskMessage[]?> GetComments(long taskId, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var cacheKey = $"cache_task_comments:{taskId}";
+        var cachedTask = await _distributedCache.GetStringAsync(cacheKey, token);
+        if (!string.IsNullOrEmpty(cachedTask) && cachedTask.Length >= 5)
+        {
+            return JsonSerializer.Deserialize<TaskMessage[]>(cachedTask);
+        }
+        
+        var taskCommments = await _taskCommentRepository.Get(new TaskCommentGetModel()
+            {
+                TaskId = taskId,
+                IncludeDeleted = false
+            }, token);
+        
+        if (taskCommments is null)
+        {
+            return null;
+        }
+
+        var results = taskCommments
+            .Select(taskComment => new TaskMessage
+                {
+                    TaskId = taskComment.TaskId,
+                    Comment = taskComment.Message, 
+                    At = taskComment.At,
+                    IsDeleted = false,
+                })
+            .ToArray();
+
+        var taskCommentsJson = JsonSerializer.Serialize(results);
+        await _distributedCache.SetStringAsync(
+            cacheKey, 
+            taskCommentsJson,
+            new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
+            },
+            token);
+
+        return results;
     }
 
     private TransactionScope CreateTransactionScope(

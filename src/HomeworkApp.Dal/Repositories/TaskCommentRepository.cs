@@ -77,7 +77,7 @@ where id = @Id
                 cancellationToken: token));
     }
 
-    public async Task<TaskCommentEntityV2[]> Get(TaskCommentGetModel model, CancellationToken token)
+    public async Task<TaskCommentEntityV2[]?> Get(TaskCommentGetModel model, CancellationToken token)
     {
         var baseSql = @"
 select id

@@ -22,7 +22,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ITakenTaskRepository, TakenTaskRepository>();
         services.AddScoped<IUserScheduleRepository, UserScheduleRepository>();
-        services.AddScoped<IRecentTaskCommentRepository, RecentTaskCommentRepository>();
         services.AddScoped<IUserRateLimitRepository, UserRateLimitRepository>();
     }
 
