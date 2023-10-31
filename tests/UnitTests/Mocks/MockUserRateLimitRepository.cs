@@ -1,3 +1,4 @@
+using HomeworkApp.Dal.Models;
 using HomeworkApp.Dal.Repositories.Interfaces;
 using Moq;
 
@@ -14,7 +15,7 @@ public static class MockUserRateLimitRepository
         var repositoryMock = new Mock<IUserRateLimitRepository>();
         repositoryMock
             .Setup(repository => repository
-                .Decrement(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Decrement(It.IsAny<UserIp>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => _currentRateLimit)
             .Callback(() => _currentRateLimit--);
 

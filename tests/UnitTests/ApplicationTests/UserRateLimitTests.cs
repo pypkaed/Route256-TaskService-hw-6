@@ -26,7 +26,7 @@ public class UserRateLimitTests
             DateTimeOffset.Now.UtcDateTime,
             new Metadata()
             {
-                { "X-R256-USER-IP", "userIp" }
+                { "X-R256-USER-IP", "1.1.1.1" }
             },
             default, 
             default, 
@@ -58,7 +58,7 @@ public class UserRateLimitTests
             DateTimeOffset.Now.UtcDateTime,
             new Metadata()
             {
-                { "X-R256-USER-IP", "userIp" }
+                { "X-R256-USER-IP", "1.1.1.1" }
             },
             default, 
             default, 

@@ -36,11 +36,10 @@ public class UserRateLimitRepositoryTests
     public async Task Get_UserRateLimit_Success()
     {
         // Arrange
-        var userIp = Create.RandomId().ToString();
-
         var userRateLimit = UserRateLimitModelFaker.Generate()
-            .Single()
-            .WithUserIp(userIp);
+            .Single();
+        var userIp = userRateLimit.UserIp;
+        
         await _repository.Add(userRateLimit, default);
         
         // Act
@@ -55,11 +54,10 @@ public class UserRateLimitRepositoryTests
     public async Task Decrement_UserRateLimit_Success()
     {
         // Arrange
-        var userIp = Create.RandomId().ToString();
-
         var userRateLimit = UserRateLimitModelFaker.Generate()
-            .Single()
-            .WithUserIp(userIp);
+            .Single();
+        var userIp = userRateLimit.UserIp;
+        
         await _repository.Add(userRateLimit, default);
         
         // Act

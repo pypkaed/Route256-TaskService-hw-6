@@ -21,22 +21,22 @@ public class UserRateLimitRepository : RedisRepository, IUserRateLimitRepository
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
 
-        var key = GetKey(model.UserIp);
+        var key = GetKey(model.UserIp.Ip);
         await connection.HashSetAsync(key, new HashEntry[]
         {
-            new ("user_ip", model.UserIp),
+            new ("user_ip", model.UserIp.Ip),
             new ("current_limit", model.CurrentLimit),
         });
 
         await connection.KeyExpireAsync(key, KeyTtl);
     }
 
-    public async Task<UserRateLimitModel?> Get(string userIp, CancellationToken token)
+    public async Task<UserRateLimitModel?> Get(UserIp userIp, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
 
-        var key = GetKey(userIp);
+        var key = GetKey(userIp.Ip);
         var fields = await connection.HashGetAllAsync(key);
 
         if (!fields.Any())
@@ -57,7 +57,7 @@ public class UserRateLimitRepository : RedisRepository, IUserRateLimitRepository
             
             result = field.Name.ToString() switch
             {
-                "user_ip" => result with { UserIp = strValue},
+                "user_ip" => result with { UserIp = new UserIp(strValue) },
                 "current_limit" => result with { CurrentLimit = longValue },
                 _ => result
             };
@@ -66,32 +66,32 @@ public class UserRateLimitRepository : RedisRepository, IUserRateLimitRepository
         return result;
     }
 
-    public async Task<long> Decrement(string userIp, CancellationToken token)
+    public async Task<long> Decrement(UserIp userIp, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
 
-        var key = GetKey(userIp);
+        var key = GetKey(userIp.Ip);
         var currentLimit = await connection.HashDecrementAsync(key, "current_limit");
 
         return currentLimit;
     }
 
-    public async Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken token)
+    public async Task<DateTime?> GetExpireTimeIfExists(UserIp userIp, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
-        var key = GetKey(userIp);
+        var key = GetKey(userIp.Ip);
         
         return await connection.KeyExpireTimeAsync(key);
     }
 
-    public async Task Delete(string userIp, CancellationToken token)
+    public async Task Delete(UserIp userIp, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var connection = await GetConnection();
 
-        var key = GetKey(userIp);
+        var key = GetKey(userIp.Ip);
         await connection.KeyDeleteAsync(key);
     }
 }

@@ -6,11 +6,11 @@ public interface IUserRateLimitRepository
 {
     Task Add(UserRateLimitModel model, CancellationToken token);
     
-    Task<UserRateLimitModel?> Get(string userIp, CancellationToken token);
+    Task<UserRateLimitModel?> Get(UserIp userIp, CancellationToken token);
     
-    Task<long> Decrement(string userIp, CancellationToken token);
+    Task<long> Decrement(UserIp userIp, CancellationToken token);
     
-    Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken token);
+    Task<DateTime?> GetExpireTimeIfExists(UserIp userIp, CancellationToken token);
     
-    Task Delete(string userIp, CancellationToken token);
+    Task Delete(UserIp userIp, CancellationToken token);
 }

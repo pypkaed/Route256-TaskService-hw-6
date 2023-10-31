@@ -18,7 +18,9 @@ public class UserRateLimitService : IUserRateLimitService
     
     public async Task Add(string userIp, CancellationToken cancellationToken)
     {
-        var expireTimeExists = await _userRateLimitRepository.GetExpireTimeIfExists(userIp, cancellationToken);
+        var userIpModel = new UserIp(userIp);
+        
+        var expireTimeExists = await _userRateLimitRepository.GetExpireTimeIfExists(userIpModel, cancellationToken);
         if (expireTimeExists is not null)
         {
             throw new Exception("User's current rate limit is not yet expired.");
@@ -26,7 +28,7 @@ public class UserRateLimitService : IUserRateLimitService
         
         await _userRateLimitRepository.Add(new UserRateLimitModel()
         {
-            UserIp = userIp,
+            UserIp = userIpModel,
             CurrentLimit = CurrentLimitDefault
         },
             cancellationToken);
@@ -34,13 +36,17 @@ public class UserRateLimitService : IUserRateLimitService
 
     public async Task<DateTime?> GetExpireTimeIfExists(string userIp, CancellationToken cancellationToken)
     {
-        var result = await _userRateLimitRepository.GetExpireTimeIfExists(userIp, cancellationToken);
+        var userIpModel = new UserIp(userIp);
+
+        var result = await _userRateLimitRepository.GetExpireTimeIfExists(userIpModel, cancellationToken);
         return result;
     }
 
     public async Task<GetUserRateLimitModel?> Get(string userIp, CancellationToken cancellationToken)
     {
-        var userRateLimit = await _userRateLimitRepository.Get(userIp, cancellationToken);
+        var userIpModel = new UserIp(userIp);
+        
+        var userRateLimit = await _userRateLimitRepository.Get(userIpModel, cancellationToken);
         if (userRateLimit is null)
         {
             return null;
@@ -48,7 +54,7 @@ public class UserRateLimitService : IUserRateLimitService
 
         var result = new GetUserRateLimitModel()
         {
-            UserIp = userRateLimit.UserIp,
+            UserIp = userRateLimit.UserIp.Ip,
             CurrentRateLimit = userRateLimit.CurrentLimit
         };
 
@@ -57,7 +63,9 @@ public class UserRateLimitService : IUserRateLimitService
 
     public async Task<long> Decrement(string userIp, CancellationToken cancellationToken)
     {
-        var currentRateLimit = await _userRateLimitRepository.Decrement(userIp, cancellationToken);
+        var userIpModel = new UserIp(userIp);
+
+        var currentRateLimit = await _userRateLimitRepository.Decrement(userIpModel, cancellationToken);
         return currentRateLimit;
     }
 }
