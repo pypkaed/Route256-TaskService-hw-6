@@ -176,7 +176,7 @@ public class TaskService : ITaskService
         transaction.Complete();
     }
 
-    public async Task<TaskMessage[]?> GetComments(long taskId, CancellationToken token)
+    public async Task<TaskMessage[]> GetComments(long taskId, CancellationToken token)
     {
         var cacheKey = CacheHelper.GetTaskCommentCacheKey(taskId);
 

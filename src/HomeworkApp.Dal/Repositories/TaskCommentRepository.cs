@@ -22,7 +22,7 @@ returning id;
 ";
 
         await using var connection = await GetConnection();
-        var id = await connection.QueryAsync<long>(
+        var id = await connection.QuerySingleAsync<long>(
             new CommandDefinition(
                 sqlQuery,
                 new
@@ -34,7 +34,7 @@ returning id;
                 },
                 cancellationToken: token));
         
-        return id.Single();
+        return id;
     }
 
     public async Task Update(TaskCommentEntityV2 model, CancellationToken token)
