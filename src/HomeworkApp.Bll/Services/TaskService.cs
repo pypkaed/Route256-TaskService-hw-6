@@ -180,7 +180,7 @@ public class TaskService : ITaskService
     {
         var cacheKey = CacheHelper.GetTaskCommentCacheKey(taskId);
 
-        var cachedComments = await GetCommentsFromCache(taskId, cacheKey, token);
+        var cachedComments = await GetCommentsFromCache(cacheKey, token);
         if (cachedComments.Any())
         {
             return cachedComments;
@@ -208,7 +208,7 @@ public class TaskService : ITaskService
             TransactionScopeAsyncFlowOption.Enabled);
     }
 
-    private async Task<TaskMessage[]> GetCommentsFromCache(long taskId, string cacheKey, CancellationToken token)
+    private async Task<TaskMessage[]> GetCommentsFromCache(string cacheKey, CancellationToken token)
     {
         var cachedTask = await _distributedCache.GetStringAsync(cacheKey, token);
         if (string.IsNullOrEmpty(cachedTask))
