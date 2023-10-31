@@ -247,10 +247,10 @@ public class TaskService : ITaskService
         return results;
     }
 
-    private async Task CacheComments(TaskMessage[] results, string cacheKey, CancellationToken token)
+    private Task CacheComments(TaskMessage[] results, string cacheKey, CancellationToken token)
     {
         var taskCommentsJson = JsonSerializer.Serialize(results);
-        await _distributedCache.SetStringAsync(
+        _distributedCache.SetStringAsync(
             cacheKey, 
             taskCommentsJson,
             new DistributedCacheEntryOptions()
@@ -258,5 +258,6 @@ public class TaskService : ITaskService
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
             },
             token);
+        return Task.CompletedTask;
     }
 }
