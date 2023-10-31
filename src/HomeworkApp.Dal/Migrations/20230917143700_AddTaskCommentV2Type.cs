@@ -3,7 +3,7 @@ using FluentMigrator;
 namespace Route256.Week5.Workshop.PriceCalculator.Dal.Migrations;
 
 [Migration(20230917143700, TransactionBehavior.None)]
-public class AddTaskCommentV2Type : Migration
+public class AddColumnsToTaskCommentV1 : Migration
 {
     public override void Up()
     {
