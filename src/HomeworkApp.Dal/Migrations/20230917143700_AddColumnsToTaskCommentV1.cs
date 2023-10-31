@@ -8,10 +8,19 @@ public class AddColumnsToTaskCommentV1 : Migration
     public override void Up()
     {
         const string addColumnsSql = @"
-ALTER TABLE task_comments
-ADD COLUMN modified_at timestamp with time zone,
-ADD COLUMN deleted_at timestamp with time zone
-;";
+DO $$
+    BEGIN
+        IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name='task_comments'
+                      AND column_name IN ('modified_at', 'deleted_at')) 
+        THEN
+            ALTER TABLE task_comments
+            ADD COLUMN modified_at timestamp with time zone,
+            ADD COLUMN deleted_at timestamp with time zone;
+        END IF;
+    END
+$$;";
         
         Execute.Sql(addColumnsSql);
     }
