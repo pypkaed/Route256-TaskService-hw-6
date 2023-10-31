@@ -31,6 +31,11 @@ public static class TaskCommentEntityV2Faker
         long id)
         => src with { Id = id };
     
+    public static TaskCommentEntityV2 WithMessage(
+        this TaskCommentEntityV2 src, 
+        string message)
+        => src with { Message = message };
+    
     public static TaskCommentEntityV2 WithModifiedAt(
         this TaskCommentEntityV2 src, 
         DateTimeOffset modifiedAt)

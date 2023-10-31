@@ -41,7 +41,8 @@ returning id;
     {
         const string sqlQuery = @"
 update task_comments
-set modified_at = @ModifiedAt
+set message = @Message
+  , modified_at = @ModifiedAt
 where id = @Id
 ";
         
@@ -52,6 +53,7 @@ where id = @Id
                 new
                 {
                     Id = model.Id,
+                    Message = model.Message,
                     ModifiedAt = DateTimeOffset.Now.UtcDateTime
                 },
                 cancellationToken: token));

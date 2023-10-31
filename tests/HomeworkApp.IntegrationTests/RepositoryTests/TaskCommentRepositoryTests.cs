@@ -47,22 +47,27 @@ public class TaskCommentRepositoryTests
         var taskCommentId = await _repository.Add(taskComment, default);
         var taskId = taskComment.TaskId;
 
-        taskComment = taskComment.WithId(taskCommentId);
+        var newMessage = "Some new message";
+        taskComment = taskComment
+            .WithId(taskCommentId)
+            .WithMessage(newMessage);
         
         // Act
         await _repository.Update(taskComment, default);
-
-        // Assert
+        
         var result = await _repository.Get(new TaskCommentGetModel()
         {
             TaskId = taskId,
             IncludeDeleted = true
         },
             default);
+        
+        // Assert
         result.Should().NotBeNull();
         result.Should().AllSatisfy(r => r.ModifiedAt.Should()
             .BeCloseTo(DateTimeOffset.Now.UtcDateTime, TimeSpan.FromMilliseconds(100)));
         result.Should().AllSatisfy(r => r.TaskId.Should().Be(taskId));
+        result.Should().AllSatisfy(r => r.Message.Should().Be(newMessage));
     }
     
     [Fact]
