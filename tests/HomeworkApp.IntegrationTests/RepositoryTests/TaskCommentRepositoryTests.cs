@@ -25,10 +25,17 @@ public class TaskCommentRepositoryTests
             .Single();
 
         // Act
-        var result = await _repository.Add(taskComment, default);
+        var taskCommentId = await _repository.Add(taskComment, default);
+        var result = await _repository.Get(new TaskCommentGetModel()
+        {
+            TaskId = taskComment.TaskId,
+            IncludeDeleted = false
+        }, default);
 
         // Assert
-        result.Should().BeGreaterThan(0);
+        taskCommentId.Should().BeGreaterThan(0);
+        result.Should().Contain(tc => tc.Id == taskCommentId);
+        result.Should().Contain(tc => tc.Message == taskComment.Message);
     }
 
     [Fact]
