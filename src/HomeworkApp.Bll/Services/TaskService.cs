@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Transactions;
+using HomeworkApp.Bll.Helpers;
 using HomeworkApp.Bll.Models;
 using HomeworkApp.Bll.Services.Interfaces;
 using HomeworkApp.Dal.Entities;
@@ -177,45 +178,19 @@ public class TaskService : ITaskService
 
     public async Task<TaskMessage[]?> GetComments(long taskId, CancellationToken token)
     {
-        var cacheKey = $"cache_task_comments:{taskId}";
-        var cachedTask = await _distributedCache.GetStringAsync(cacheKey, token);
-        if (!string.IsNullOrEmpty(cachedTask) && cachedTask.Length >= 5)
+        var cacheKey = CacheHelper.GetTaskCommentCacheKey(taskId);
+
+        var cachedComments = await GetCommentsFromCache(taskId, cacheKey, token);
+        if (cachedComments.Any())
         {
-            return JsonSerializer.Deserialize<TaskMessage[]>(cachedTask);
-        }
-        
-        var taskCommments = await _taskCommentRepository.Get(new TaskCommentGetModel()
-            {
-                TaskId = taskId,
-                IncludeDeleted = false
-            }, token);
-        
-        if (taskCommments is null)
-        {
-            return null;
+            return cachedComments;
         }
 
-        var results = taskCommments
-            .Select(taskComment => new TaskMessage
-                {
-                    TaskId = taskComment.TaskId,
-                    Comment = taskComment.Message, 
-                    At = taskComment.At,
-                    IsDeleted = false,
-                })
-            .OrderByDescending(tc => tc.At)
-            .Take(5)
-            .ToArray();
-
-        var taskCommentsJson = JsonSerializer.Serialize(results);
-        await _distributedCache.SetStringAsync(
-            cacheKey, 
-            taskCommentsJson,
-            new DistributedCacheEntryOptions()
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
-            },
-            token);
+        var results = await GetCommentsFromPg(taskId, token);
+        if (results.Any())
+        {
+            await CacheComments(results, cacheKey, token);
+        }
 
         return results;
     }
@@ -231,5 +206,57 @@ public class TaskService : ITaskService
                 Timeout = TimeSpan.FromSeconds(5) 
             },
             TransactionScopeAsyncFlowOption.Enabled);
+    }
+
+    private async Task<TaskMessage[]> GetCommentsFromCache(long taskId, string cacheKey, CancellationToken token)
+    {
+        var cachedTask = await _distributedCache.GetStringAsync(cacheKey, token);
+        if (string.IsNullOrEmpty(cachedTask))
+        {
+            return Array.Empty<TaskMessage>();
+        }
+        
+        return JsonSerializer.Deserialize<TaskMessage[]>(cachedTask);
+    }
+
+    private async Task<TaskMessage[]> GetCommentsFromPg(long taskId, CancellationToken token)
+    {
+        var taskComments = await _taskCommentRepository.Get(new TaskCommentGetModel()
+        {
+            TaskId = taskId,
+            IncludeDeleted = false
+        }, token);
+        
+        if (taskComments is null)
+        {
+            return Array.Empty<TaskMessage>();
+        }
+
+        var results = taskComments
+            .Select(taskComment => new TaskMessage
+            {
+                TaskId = taskComment.TaskId,
+                Comment = taskComment.Message, 
+                At = taskComment.At,
+                IsDeleted = false,
+            })
+            .OrderByDescending(tc => tc.At)
+            .Take(5)
+            .ToArray();
+
+        return results;
+    }
+
+    private async Task CacheComments(TaskMessage[] results, string cacheKey, CancellationToken token)
+    {
+        var taskCommentsJson = JsonSerializer.Serialize(results);
+        await _distributedCache.SetStringAsync(
+            cacheKey, 
+            taskCommentsJson,
+            new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
+            },
+            token);
     }
 }
