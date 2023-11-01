@@ -19,8 +19,6 @@ DO $$
                 , author_user_id      bigint
                 , message             text
                 , at                  timestamp with time zone
-                , modified_at         timestamp with time zone
-                , deleted_at          timestamp with time zone
             );
         END IF;
     END
